@@ -200,8 +200,6 @@
           <span class="amount-value">
             {{ formatAmount(amount.value) }}
           </span>
-
-          <span class="amount-currency">kr</span>
         </div>
       </div>
     </section>
