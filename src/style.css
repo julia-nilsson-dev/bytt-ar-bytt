@@ -1,0 +1,289 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap");
+
+:root {
+  font-family: "DM Sans", sans-serif;
+  color: #171717;
+  background: #f5f3ef;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.admin {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 48px 32px;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 48px;
+}
+
+.admin-header h1 {
+  font-size: 36px;
+  margin: 4px 0;
+}
+
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+
+.reset-button {
+  border: 1px solid #222;
+  padding: 12px 20px;
+  background: transparent;
+  border-radius: 6px;
+}
+
+.admin-content h2 {
+  margin-bottom: 4px;
+}
+
+.description {
+  color: #777;
+  margin-bottom: 24px;
+}
+
+.amount-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.amount-button {
+  padding: 24px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: 0.2s;
+}
+
+.amount-button span {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.amount-button small {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: #888;
+}
+
+.amount-button:hover {
+  border-color: #e99b8d;
+}
+
+.amount-button.removed {
+  opacity: 0.4;
+  background: #eee;
+}
+
+.admin footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 40px;
+  color: #777;
+}
+
+.admin footer a {
+  color: #171717;
+}
+
+@media (max-width: 600px) {
+  .amount-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .admin {
+    padding: 24px 16px;
+  }
+}
+
+/* TV DISPLAY */
+
+.tv-screen {
+  width: 100vw;
+  height: 100vh;
+  min-height: 500px;
+  background: #e99b8d;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5vh 5vw;
+}
+
+.tv-layout {
+  width: 100%;
+  max-width: 1500px;
+  height: 90%;
+  display: grid;
+  grid-template-columns: 1fr 0.85fr;
+  gap: 7%;
+  align-items: center;
+}
+
+/* BRAND */
+
+.tv-brand {
+  text-align: center;
+  color: #171313;
+}
+
+.brand-circle {
+  width: 160px;
+  height: 160px;
+  border: 3px solid #171313;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 30px;
+}
+
+.brand-circle span {
+  font-size: 42px;
+  font-weight: 800;
+}
+
+.tv-brand h1 {
+  font-size: clamp(42px, 5vw, 78px);
+  line-height: 0.95;
+  font-weight: 800;
+  margin: 0;
+  letter-spacing: -3px;
+}
+
+.tv-brand h1 span {
+  display: block;
+  font-size: 0.5em;
+  font-weight: 400;
+  letter-spacing: 0;
+  margin: 8px 0;
+}
+
+.brand-line {
+  height: 2px;
+  background: #171313;
+  width: 80px;
+  margin: 28px auto 16px;
+}
+
+.tv-brand p {
+  font-size: 12px;
+  letter-spacing: 4px;
+  font-weight: 700;
+}
+
+/* AMOUNT BOARD */
+
+.tv-board {
+  background: #080808;
+  color: white;
+  padding: 35px 55px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0;
+  height: 100%;
+  max-height: 760px;
+}
+
+.tv-amount {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  border-bottom: 1px solid #333;
+  position: relative;
+  transition: opacity 0.6s ease;
+}
+
+.tv-amount:last-child {
+  border-bottom: none;
+}
+
+.amount-value {
+  font-size: clamp(22px, 2.5vw, 40px);
+  font-weight: 600;
+  transition: color 0.6s ease;
+}
+
+.amount-currency {
+  font-size: 16px;
+  color: #aaa;
+}
+
+.tv-amount.removed {
+  opacity: 0.3;
+}
+
+.tv-amount.removed .amount-value {
+  color: #888;
+  position: relative;
+}
+
+.tv-amount.removed .amount-value::after {
+  content: "";
+  position: absolute;
+  left: -5%;
+  top: 50%;
+  width: 110%;
+  height: 3px;
+  background: #e99b8d;
+  transform: translateY(-50%);
+  animation: strike 0.4s ease forwards;
+}
+
+@keyframes strike {
+  from {
+    width: 0;
+  }
+  to {
+    width: 110%;
+  }
+}
+
+@media (max-width: 700px) {
+  .tv-layout {
+    grid-template-columns: 1fr 1fr;
+    gap: 4%;
+  }
+
+  .tv-board {
+    padding: 15px;
+  }
+
+  .brand-circle {
+    width: 90px;
+    height: 90px;
+  }
+
+  .brand-circle span {
+    font-size: 28px;
+  }
+}
