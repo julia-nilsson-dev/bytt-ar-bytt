@@ -1,4 +1,5 @@
 <script setup>
+  const tvUrl = `${import.meta.env.BASE_URL}#/tv`;
   const props = defineProps({
     amounts: {
       type: Array,
@@ -54,7 +55,7 @@
         {{ props.amounts.filter((a) => !a.removed).length }}
         av {{ props.amounts.length }} belopp kvar
       </span>
-      <a href="/tv" target="_blank">Öppna TV-vy ↗</a>
+      <a :href="tvUrl" target="_blank">Öppna TV-vy</a>
     </footer>
   </main>
 </template>

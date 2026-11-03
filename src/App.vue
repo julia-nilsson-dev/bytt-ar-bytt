@@ -4,7 +4,7 @@
   import TvDisplay from "./components/TvDisplay.vue";
   import { supabase } from "./lib/supabase";
 
-  const isTvView = window.location.pathname.endsWith("/tv");
+  const isTvView = window.location.hash === "#/tv";
 
   const initialAmounts = [
     1000000, 500000, 175000, 100000, 50000, 25000, 10000, 500,
