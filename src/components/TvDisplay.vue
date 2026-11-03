@@ -1,5 +1,7 @@
 <script setup>
   import { ref, watch, onUnmounted } from "vue";
+  import fanfare from "../assets/sounds/Grand-Theatral-Accent.mp3";
+  import logo from "../assets/images/logo.png";
 
   const props = defineProps({
     amounts: {
@@ -21,6 +23,41 @@
   let timeout = null;
   let currentIndex = 0;
 
+  const soundEnabled = ref(false);
+  const fanfareAudio = new Audio(fanfare);
+  fanfareAudio.preload = "auto";
+
+  const FANFARE_DURATION = 5260;
+
+  function enableSound() {
+    soundEnabled.value = true;
+    fanfareAudio
+      .play()
+      .then(() => {
+        fanfareAudio.pause();
+        fanfareAudio.currentTime = 0;
+      })
+      .catch((error) => {
+        console.warn("Kunde inte aktivera ljudet:", error);
+      });
+  }
+
+  function playFanfare() {
+    if (!soundEnabled.value) return;
+
+    fanfareAudio.pause();
+    fanfareAudio.currentTime = 0;
+
+    fanfareAudio.play().catch((error) => {
+      console.warn("Kunde inte spela fanfaren:", error);
+    });
+  }
+
+  function stopFanfare() {
+    fanfareAudio.pause();
+    fanfareAudio.currentTime = 0;
+  }
+
   function formatAmount(value) {
     return new Intl.NumberFormat("sv-SE").format(value);
   }
@@ -28,8 +65,11 @@
   function stopAnimation() {
     clearInterval(interval);
     clearTimeout(timeout);
+
     interval = null;
     timeout = null;
+
+    stopFanfare();
   }
 
   function playRemovalAnimation(id) {
@@ -38,52 +78,66 @@
     isRolling.value = true;
     winnerId.value = null;
 
-    const remaining = props.amounts.filter((a) => !a.removed);
+    const remaining = props.amounts.filter((a) => !a.removed || a.id === id);
 
-    // Beloppen som ska vara med i rullningen
-    const items = remaining;
+    if (!remaining.length) return;
 
-    if (!items.length) return;
+    const isFinalRound = remaining.length === 2;
+
+    const finalAmount = isFinalRound
+      ? remaining.find((a) => a.id !== id)
+      : null;
 
     currentIndex = 0;
-    activeId.value = items[0].id;
+    activeId.value = remaining[0].id;
+
+    playFanfare();
 
     interval = setInterval(() => {
-      currentIndex = (currentIndex + 1) % items.length;
-      activeId.value = items[currentIndex].id;
-    }, 100);
+      currentIndex = (currentIndex + 1) % remaining.length;
+      activeId.value = remaining[currentIndex].id;
+    }, 140);
 
     timeout = setTimeout(() => {
       clearInterval(interval);
       interval = null;
 
       isRolling.value = false;
-      activeId.value = id;
-      winnerId.value = id;
+      activeId.value = null;
 
-      timeout = setTimeout(() => {
-        displayedRemoved.value = new Set([...displayedRemoved.value, id]);
+      if (!isFinalRound) {
+        winnerId.value = id;
+      }
 
-        winnerId.value = null;
-        activeId.value = null;
+      timeout = setTimeout(
+        () => {
+          displayedRemoved.value = new Set([...displayedRemoved.value, id]);
 
-        // Kontrollera om endast ett belopp återstår
-        const remainingAfterRemoval = props.amounts.filter((a) => !a.removed);
+          winnerId.value = null;
 
-        if (remainingAfterRemoval.length === 1) {
-          finalId.value = remainingAfterRemoval[0].id;
-        }
-      }, 650);
-    }, 1600);
+          if (isFinalRound && finalAmount) {
+            timeout = setTimeout(() => {
+              finalId.value = finalAmount.id;
+            }, 450);
+          }
+        },
+        isFinalRound ? 0 : 650,
+      );
+    }, FANFARE_DURATION);
   }
 
   watch(
-    () => props.amounts.map((a) => ({ id: a.id, removed: a.removed })),
+    () =>
+      props.amounts.map((a) => ({
+        id: a.id,
+        removed: a.removed,
+      })),
     (newAmounts, oldAmounts) => {
       if (!oldAmounts) return;
 
       const newlyRemoved = newAmounts.find((item) => {
         const previous = oldAmounts.find((old) => old.id === item.id);
+
         return item.removed && previous && !previous.removed;
       });
 
@@ -94,9 +148,12 @@
       const resetOrUndone = newAmounts.every((item) => !item.removed);
 
       if (resetOrUndone) {
+        stopAnimation();
+
         finalId.value = null;
         winnerId.value = null;
         activeId.value = null;
+        isRolling.value = false;
       }
 
       displayedRemoved.value = new Set(
@@ -109,22 +166,19 @@
 
   onUnmounted(() => {
     stopAnimation();
+    fanfareAudio.pause();
   });
 </script>
 
 <template>
   <main class="tv-screen">
+    <button class="sound-toggle" @click="enableSound">
+      {{ soundEnabled ? "Ljud på ✓" : "Aktivera ljud 🔊" }}
+    </button>
+
     <section class="tv-layout" :class="{ 'final-layout': finalId !== null }">
       <div class="tv-brand" v-if="finalId === null">
-        <div class="brand-circle">
-          <span>B&B</span>
-        </div>
-
-        <h1>
-          BYTT
-          <span>är</span>
-          BYTT
-        </h1>
+        <img :src="logo" alt="BYTT är BYTT" class="tv-logo" />
 
         <div class="brand-line"></div>
         <p>SPELET PÅGÅR</p>
@@ -134,7 +188,7 @@
         <div
           v-for="amount in props.amounts"
           :key="amount.id"
-          v-show="!finalId || amount.id === finalId"
+          v-show="finalId === null || amount.id === finalId"
           class="tv-amount"
           :class="{
             'rolling-highlight': isRolling && activeId === amount.id,

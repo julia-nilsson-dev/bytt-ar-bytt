@@ -373,3 +373,86 @@ button {
     font-size: 28px;
   }
 }
+
+/* FINAL – sista beloppet */
+.tv-layout.final-layout {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.tv-board.final-board {
+  width: min(80vw, 1100px);
+  height: auto;
+  max-height: none;
+  padding: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: finalBoardAppear 1s ease forwards;
+}
+
+.tv-amount.final-amount {
+  width: 100%;
+  min-height: 260px;
+  transform: scale(1);
+  background: linear-gradient(145deg, #49413e, #171515);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow:
+    0 0 40px rgba(255, 255, 255, 0.12),
+    0 20px 60px rgba(0, 0, 0, 0.35);
+  animation: finalAmountAppear 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.final-amount .amount-value {
+  font-size: clamp(60px, 10vw, 130px);
+}
+
+.final-amount .amount-currency {
+  font-size: clamp(24px, 3vw, 42px);
+}
+
+@keyframes finalBoardAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes finalAmountAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.sound-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 30px;
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.tv-logo {
+  display: block;
+  width: min(420px, 70vw);
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto 20px;
+}

@@ -41,7 +41,7 @@
           :class="{ removed: amount.removed }"
           @click="emit('toggle', amount.id)"
         >
-          <span>{{ formatAmount(amount.value) }} kr</span>
+          <span>{{ formatAmount(amount.value) }}</span>
           <small>
             {{ amount.removed ? "BORTTAGET" : "Klicka för att ta bort" }}
           </small>
