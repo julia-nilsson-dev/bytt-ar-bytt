@@ -127,12 +127,24 @@ button {
   width: 100vw;
   height: 100vh;
   min-height: 500px;
-  background: #e99b8d;
+  background:
+    radial-gradient(
+      ellipse at 18% 30%,
+      rgba(255, 224, 207, 0.65),
+      transparent 40%
+    ),
+    radial-gradient(
+      ellipse at 85% 85%,
+      rgba(190, 100, 99, 0.35),
+      transparent 45%
+    ),
+    linear-gradient(135deg, #f3b2a1 0%, #e99b8d 45%, #d98179 100%);
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 5vh 5vw;
+  position: relative;
 }
 
 .tv-layout {
@@ -149,7 +161,8 @@ button {
 
 .tv-brand {
   text-align: center;
-  color: #171313;
+  color: #241918;
+  filter: drop-shadow(0 4px 8px rgba(100, 40, 35, 0.12));
 }
 
 .brand-circle {
@@ -161,6 +174,9 @@ button {
   justify-content: center;
   align-items: center;
   margin: 0 auto 30px;
+  box-shadow:
+    0 8px 25px rgba(100, 40, 35, 0.12),
+    inset 0 0 15px rgba(255, 255, 255, 0.15);
 }
 
 .brand-circle span {
@@ -199,52 +215,101 @@ button {
 
 /* AMOUNT BOARD */
 
+/* TV BOARD */
+
 .tv-board {
-  background: #080808;
-  color: white;
-  padding: 35px 55px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0;
+  background: linear-gradient(145deg, #242323 0%, #101010 55%, #080808 100%);
+  padding: 28px;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(8, 1fr);
+  gap: 10px;
   height: 100%;
   max-height: 760px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  box-shadow:
+    0 25px 60px rgba(65, 28, 25, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
+/* AMOUNT BOXES */
 .tv-amount {
+  position: relative;
+  background: linear-gradient(135deg, #353333 0%, #242323 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 12px;
-  flex: 1;
-  min-height: 0;
-  border-bottom: 1px solid #333;
-  position: relative;
-  transition: opacity 0.6s ease;
-}
-
-.tv-amount:last-child {
-  border-bottom: none;
+  gap: 10px;
+  color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 3px 8px rgba(0, 0, 0, 0.25);
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    opacity 0.5s ease,
+    transform 0.35s ease,
+    color 0.5s ease;
 }
 
 .amount-value {
   font-size: clamp(22px, 2.5vw, 40px);
   font-weight: 600;
-  transition: color 0.6s ease;
+  position: relative;
+  white-space: nowrap;
 }
 
 .amount-currency {
-  font-size: 16px;
-  color: #aaa;
+  font-size: 15px;
+  color: #aaaaaa;
 }
 
+/* ROLLING HIGHLIGHT */
+
+.tv-amount.rolling-highlight {
+  background: #e99b8d;
+  border-color: #ffffff;
+  color: #080808;
+  transform: scale(1.04);
+  z-index: 2;
+  box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+}
+
+.tv-amount.rolling-highlight .amount-currency {
+  color: #171313;
+}
+
+/* WINNER */
+
+.tv-amount.winner-highlight {
+  background: #ffffff;
+  border-color: #e99b8d;
+  color: #080808;
+  transform: scale(1.1);
+  z-index: 3;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.35);
+}
+
+.tv-amount.winner-highlight .amount-currency {
+  color: #555555;
+}
+
+/* REMOVED */
+
 .tv-amount.removed {
-  opacity: 0.3;
+  background: #171717;
+  border-color: #292929;
+  color: #777777;
+  opacity: 0.65;
+  transform: scale(1);
+  box-shadow: none;
 }
 
 .tv-amount.removed .amount-value {
-  color: #888;
-  position: relative;
+  color: #777777;
 }
 
 .tv-amount.removed .amount-value::after {
@@ -259,6 +324,10 @@ button {
   animation: strike 0.4s ease forwards;
 }
 
+.tv-amount.removed .amount-currency {
+  color: #555555;
+}
+
 @keyframes strike {
   from {
     width: 0;
@@ -268,14 +337,31 @@ button {
   }
 }
 
+/* TV RESPONSIVE */
+
+@media (max-width: 700px) {
+  .tv-board {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .tv-amount {
+    gap: 4px;
+  }
+
+  .amount-value {
+    font-size: clamp(15px, 3vw, 24px);
+  }
+
+  .amount-currency {
+    font-size: 11px;
+  }
+}
+
 @media (max-width: 700px) {
   .tv-layout {
     grid-template-columns: 1fr 1fr;
     gap: 4%;
-  }
-
-  .tv-board {
-    padding: 15px;
   }
 
   .brand-circle {
