@@ -6,19 +6,7 @@
 
   const isTvView = window.location.hash === "#/tv";
 
-  const initialAmounts = [
-    500000, 250000, 100000, 50000, 25000, 10000, 5000, 500,
-  ];
-
-  function createInitialAmounts() {
-    return initialAmounts.map((value, index) => ({
-      id: index + 1,
-      value,
-      removed: false,
-    }));
-  }
-
-  const amounts = ref(createInitialAmounts());
+  const amounts = ref([]);
   const loading = ref(true);
   const errorMessage = ref("");
   const isUpdating = ref(false);
@@ -31,7 +19,6 @@
     }
   }
 
-  // Hämta aktuellt spelläge från Supabase
   async function loadGame() {
     const { data, error } = await supabase
       .from("game_state")
@@ -40,15 +27,14 @@
       .single();
 
     if (error) {
-      console.error("Kunde inte hämta spelet:", error);
-      errorMessage.value = "Kunde inte hämta spelet från databasen.";
+      console.error(error);
+      errorMessage.value = "Kunde inte hämta spelet.";
       return;
     }
 
     applyAmounts(data.amounts);
   }
 
-  // Spara nytt spelläge i Supabase
   async function saveGame(newAmounts) {
     if (isUpdating.value) return;
 
@@ -66,9 +52,8 @@
       .single();
 
     if (error) {
-      console.error("Kunde inte spara spelet:", error);
-      errorMessage.value =
-        "Kunde inte spara ändringen. Kontrollera anslutningen.";
+      console.error(error);
+      errorMessage.value = "Kunde inte spara ändringen.";
     } else {
       applyAmounts(data.amounts);
     }
@@ -76,25 +61,79 @@
     isUpdating.value = false;
   }
 
-  // Ta bort eller återställa ett belopp
-  async function updateAmount(id) {
-    if (isUpdating.value) return;
-
-    const newAmounts = amounts.value.map((item) =>
+  function updateAmount(id) {
+    const updated = amounts.value.map((item) =>
       item.id === id ? { ...item, removed: !item.removed } : item,
     );
 
-    await saveGame(newAmounts);
+    saveGame(updated);
   }
 
-  // Återställ hela spelet
-  async function resetGame() {
-    if (isUpdating.value) return;
+  // Lägg till en ny valör
+  function addAmount(value) {
+    const newValue = Number(value);
 
-    await saveGame(createInitialAmounts());
+    if (!Number.isFinite(newValue) || newValue <= 0) return;
+
+    const nextId = Math.max(0, ...amounts.value.map((a) => a.id)) + 1;
+
+    saveGame([
+      ...amounts.value,
+      {
+        id: nextId,
+        value: newValue,
+        removed: false,
+      },
+    ]);
   }
 
-  // Lyssna på ändringar från andra enheter
+  // Redigera en befintlig valör
+  function editAmount({ id, value }) {
+    const newValue = Number(value);
+
+    if (!Number.isFinite(newValue) || newValue <= 0) return;
+
+    const updated = amounts.value.map((item) =>
+      item.id === id ? { ...item, value: newValue } : item,
+    );
+
+    saveGame(updated);
+  }
+
+  // Ta bort en valör
+  function deleteAmount(id) {
+    const updated = amounts.value.filter((item) => item.id !== id);
+    saveGame(updated);
+  }
+
+  // Flytta en valör upp eller ned
+  function moveAmount({ id, direction }) {
+    const updated = [...amounts.value];
+    const index = updated.findIndex((item) => item.id === id);
+    const newIndex = index + direction;
+
+    if (newIndex < 0 || newIndex >= updated.length) return;
+
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+
+    saveGame(updated);
+  }
+
+  // Återställ borttagna belopp, men behåll valörerna
+  function resetGame() {
+    const updated = amounts.value.map((item) => ({
+      ...item,
+      removed: false,
+    }));
+
+    saveGame(updated);
+  }
+
+  // Ny spelomgång med samma valörer
+  function newGame() {
+    resetGame();
+  }
+
   function subscribeToGame() {
     realtimeChannel = supabase
       .channel("bytt-ar-bytt-game")
@@ -112,8 +151,7 @@
       )
       .subscribe((status) => {
         if (status === "CHANNEL_ERROR") {
-          errorMessage.value =
-            "Kunde inte ansluta till spelets realtidssynkning.";
+          errorMessage.value = "Kunde inte ansluta till realtidssynkningen.";
         }
       });
   }
@@ -121,7 +159,6 @@
   onMounted(async () => {
     await loadGame();
     loading.value = false;
-
     subscribeToGame();
   });
 
@@ -134,9 +171,9 @@
 
 <template>
   <div>
-    <div v-if="loading" class="connection-message">Ansluter till spelet...</div>
+    <div v-if="loading">Ansluter till spelet...</div>
 
-    <div v-else-if="errorMessage" class="connection-error">
+    <div v-else-if="errorMessage">
       {{ errorMessage }}
     </div>
 
@@ -146,6 +183,11 @@
         :amounts="amounts"
         @toggle="updateAmount"
         @reset="resetGame"
+        @new-game="newGame"
+        @add="addAmount"
+        @edit="editAmount"
+        @delete="deleteAmount"
+        @move="moveAmount"
       />
 
       <TvDisplay v-else :amounts="amounts" />
