@@ -7,7 +7,7 @@
   const isTvView = window.location.hash === "#/tv";
 
   const initialAmounts = [
-    1000000, 500000, 175000, 100000, 50000, 25000, 10000, 500,
+    500000, 250000, 100000, 50000, 25000, 10000, 5000, 500,
   ];
 
   function createInitialAmounts() {
