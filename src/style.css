@@ -149,20 +149,33 @@ button {
 
 .tv-layout {
   width: 100%;
-  max-width: 1500px;
+  /* max-width: 1800px; */
   height: 90%;
-  display: grid;
-  grid-template-columns: 1fr 0.85fr;
-  gap: 7%;
+  display: flex;
+  flex-direction: row;
+  gap: 4%;
   align-items: center;
+  justify-content: center;
 }
-
 /* BRAND */
 
 .tv-brand {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  color: #241918;
-  filter: drop-shadow(0 4px 8px rgba(100, 40, 35, 0.12));
+}
+
+.tv-logo {
+  display: block;
+  width: 50%;
+  height: auto;
+  object-fit: contain;
+  margin: 0 auto 20px;
 }
 
 .brand-circle {
@@ -217,15 +230,25 @@ button {
 
 /* TV BOARD */
 
+.tv-board-wrapper {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .tv-board {
-  background: linear-gradient(145deg, #242323 0%, #101010 55%, #080808 100%);
+  width: 100%;
+  max-width: 850px;
+  height: 100%;
   padding: 28px;
+  background: linear-gradient(145deg, #242323 0%, #101010 55%, #080808 100%);
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: repeat(8, 1fr);
+  grid-template-rows: repeat(8, minmax(0, 1fr));
   gap: 10px;
-  height: 100%;
-  max-height: 760px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 10px;
   box-shadow:
@@ -437,7 +460,21 @@ button {
 
 .sound-toggle {
   position: absolute;
-  top: 20px;
+  bottom: 20px;
+  left: 20px;
+  z-index: 10;
+  padding: 10px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 30px;
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.fullscreen-toggle {
+  position: absolute;
+  bottom: 20px;
   right: 20px;
   z-index: 10;
   padding: 10px 16px;
@@ -449,10 +486,6 @@ button {
   font-size: 14px;
 }
 
-.tv-logo {
-  display: block;
-  width: min(420px, 70vw);
-  height: auto;
-  object-fit: contain;
-  margin: 0 auto 20px;
+.fullscreen-toggle:hover {
+  background: rgba(0, 0, 0, 0.4);
 }

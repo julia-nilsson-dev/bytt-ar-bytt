@@ -1,7 +1,25 @@
 <script setup>
   import { ref, watch, onUnmounted } from "vue";
-  import fanfare from "../assets/sounds/Grand-Theatral-Accent.mp3";
-  import logo from "../assets/images/logo.png";
+  import fanfare from "../assets/sounds/bytt-ar-bytt.mp3";
+  import logo from "../assets/images/logo-black.png";
+
+  const isFullscreen = ref(false);
+
+  async function toggleFullscreen() {
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      } else {
+        await document.exitFullscreen();
+      }
+    } catch (error) {
+      console.warn("Kunde inte aktivera fullskärm:", error);
+    }
+  }
+
+  function updateFullscreenState() {
+    isFullscreen.value = !!document.fullscreenElement;
+  }
 
   const props = defineProps({
     amounts: {
@@ -21,13 +39,14 @@
 
   let interval = null;
   let timeout = null;
+  let blinkTimeout = null;
   let currentIndex = 0;
 
   const soundEnabled = ref(false);
   const fanfareAudio = new Audio(fanfare);
   fanfareAudio.preload = "auto";
 
-  const FANFARE_DURATION = 5260;
+  const FANFARE_DURATION = 9500;
 
   function enableSound() {
     soundEnabled.value = true;
@@ -65,9 +84,11 @@
   function stopAnimation() {
     clearInterval(interval);
     clearTimeout(timeout);
+    clearTimeout(blinkTimeout);
 
     interval = null;
     timeout = null;
+    blinkTimeout = null;
 
     stopFanfare();
   }
@@ -89,14 +110,20 @@
       : null;
 
     currentIndex = 0;
-    activeId.value = remaining[0].id;
+    activeId.value = null;
 
     playFanfare();
 
-    interval = setInterval(() => {
-      currentIndex = (currentIndex + 1) % remaining.length;
-      activeId.value = remaining[currentIndex].id;
-    }, 140);
+    blinkTimeout = setTimeout(() => {
+      activeId.value = remaining[0].id;
+
+      interval = setInterval(() => {
+        currentIndex = (currentIndex + 1) % remaining.length;
+        activeId.value = remaining[currentIndex].id;
+      }, 140);
+
+      blinkTimeout = null;
+    }, 750);
 
     timeout = setTimeout(() => {
       clearInterval(interval);
@@ -118,10 +145,10 @@
           if (isFinalRound && finalAmount) {
             timeout = setTimeout(() => {
               finalId.value = finalAmount.id;
-            }, 450);
+            }, 0);
           }
         },
-        isFinalRound ? 0 : 650,
+        isFinalRound ? 0 : 1800,
       );
     }, FANFARE_DURATION);
   }
@@ -164,42 +191,46 @@
     },
   );
 
+  document.addEventListener("fullscreenchange", updateFullscreenState);
+
   onUnmounted(() => {
     stopAnimation();
     fanfareAudio.pause();
+    document.removeEventListener("fullscreenchange", updateFullscreenState);
   });
 </script>
 
 <template>
   <main class="tv-screen">
     <button class="sound-toggle" @click="enableSound">
-      {{ soundEnabled ? "Ljud på ✓" : "Aktivera ljud 🔊" }}
+      {{ soundEnabled ? "✓" : " 🔊" }}
+    </button>
+    <button class="fullscreen-toggle" @click="toggleFullscreen">
+      {{ isFullscreen ? "X" : "⛶" }}
     </button>
 
     <section class="tv-layout" :class="{ 'final-layout': finalId !== null }">
       <div class="tv-brand" v-if="finalId === null">
         <img :src="logo" alt="BYTT är BYTT" class="tv-logo" />
-
-        <div class="brand-line"></div>
-        <p>SPELET PÅGÅR</p>
       </div>
-
-      <div class="tv-board" :class="{ 'final-board': finalId !== null }">
-        <div
-          v-for="amount in props.amounts"
-          :key="amount.id"
-          v-show="finalId === null || amount.id === finalId"
-          class="tv-amount"
-          :class="{
-            'rolling-highlight': isRolling && activeId === amount.id,
-            'winner-highlight': winnerId === amount.id,
-            removed: displayedRemoved.has(amount.id),
-            'final-amount': finalId === amount.id,
-          }"
-        >
-          <span class="amount-value">
-            {{ formatAmount(amount.value) }}
-          </span>
+      <div class="tv-board-wrapper">
+        <div class="tv-board" :class="{ 'final-board': finalId !== null }">
+          <div
+            v-for="amount in props.amounts"
+            :key="amount.id"
+            v-show="finalId === null || amount.id === finalId"
+            class="tv-amount"
+            :class="{
+              'rolling-highlight': isRolling && activeId === amount.id,
+              'winner-highlight': winnerId === amount.id,
+              removed: displayedRemoved.has(amount.id),
+              'final-amount': finalId === amount.id,
+            }"
+          >
+            <span class="amount-value">
+              {{ formatAmount(amount.value) }}
+            </span>
+          </div>
         </div>
       </div>
     </section>
