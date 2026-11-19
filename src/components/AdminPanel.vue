@@ -2,6 +2,7 @@
   import { ref } from "vue";
 
   const tvUrl = `${import.meta.env.BASE_URL}#/tv`;
+  const leadershipUrl = `${import.meta.env.BASE_URL}#/ledning`;
 
   const props = defineProps({
     amounts: {
@@ -17,6 +18,8 @@
     "edit",
     "delete",
     "move",
+    "start-leadership",
+    "reset-leadership",
   ]);
 
   const newAmount = ref("");
@@ -91,6 +94,31 @@
         Återställ spel
       </button>
     </header>
+
+    <!-- LEDNINGSGRUPPENS PRESENTATION -->
+    <section class="leadership-admin">
+      <div>
+        <p class="eyebrow">SEPARAT PRESENTATION</p>
+        <h2>Ledningsgruppens gissning</h2>
+        <p>Starta avslöjandet av ledningsgruppens val: 500 000 kr.</p>
+      </div>
+
+      <div class="leadership-admin-actions">
+        <button
+          class="leadership-start-button"
+          @click="emit('start-leadership')"
+        >
+          ▶ Starta avslöjandet
+        </button>
+
+        <button
+          class="leadership-reset-button"
+          @click="emit('reset-leadership')"
+        >
+          Kör igen
+        </button>
+      </div>
+    </section>
 
     <section class="admin-content">
       <h2>Belopp</h2>
@@ -195,7 +223,12 @@
         av {{ props.amounts.length }} belopp kvar
       </span>
 
-      <a :href="tvUrl" target="_blank">Öppna TV-vy ↗</a>
+      <div class="view-links">
+        <a :href="tvUrl" target="_blank">Öppna TV-vy ↗</a>
+        <a :href="leadershipUrl" target="_blank">
+          Öppna ledningsgruppens vy ↗
+        </a>
+      </div>
     </footer>
   </main>
 </template>
@@ -262,5 +295,59 @@
 
   .add-button {
     font-weight: 600;
+  }
+
+  /* Ledningsgruppens presentation */
+  .leadership-admin {
+    margin: 30px 0;
+    padding: 24px;
+    border: 1px solid #e3b1a7;
+    border-radius: 10px;
+    background: #fff8f5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .leadership-admin h2 {
+    margin: 6px 0;
+  }
+
+  .leadership-admin p {
+    margin-bottom: 0;
+  }
+
+  .leadership-admin-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .leadership-start-button,
+  .leadership-reset-button {
+    padding: 12px 18px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
+  }
+
+  .leadership-start-button {
+    background: #a64f47;
+    color: white;
+  }
+
+  .leadership-reset-button {
+    background: #ead8d3;
+    color: #352321;
+  }
+
+  .view-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
   }
 </style>

@@ -460,8 +460,8 @@ button {
 
 .sound-toggle {
   position: absolute;
-  bottom: 20px;
-  left: 20px;
+  top: 20px;
+  left: 80px;
   z-index: 10;
   padding: 10px 16px;
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -474,8 +474,8 @@ button {
 
 .fullscreen-toggle {
   position: absolute;
-  bottom: 20px;
-  right: 20px;
+  top: 20px;
+  left: 20px;
   z-index: 10;
   padding: 10px 16px;
   border: 1px solid rgba(255, 255, 255, 0.4);
@@ -488,4 +488,18 @@ button {
 
 .fullscreen-toggle:hover {
   background: rgba(0, 0, 0, 0.4);
+}
+
+.hansa-brand {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  z-index: 10;
+  max-width: 80px;
+}
+
+.hansa-logo {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
 }

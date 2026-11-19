@@ -2,6 +2,7 @@
   import { ref, watch, onUnmounted } from "vue";
   import fanfare from "../assets/sounds/bytt-ar-bytt.mp3";
   import logo from "../assets/images/logo-black.png";
+  import hansaLogo from "../assets/images/hansa-logo.png";
 
   const isFullscreen = ref(false);
 
@@ -232,6 +233,9 @@
             </span>
           </div>
         </div>
+      </div>
+      <div class="hansa-brand" v-if="finalId === null">
+        <img :src="hansaLogo" alt="BYTT är BYTT" class="hansa-logo" />
       </div>
     </section>
   </main>

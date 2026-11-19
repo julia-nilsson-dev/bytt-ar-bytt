@@ -1,15 +1,25 @@
 <script setup>
   import { ref, onMounted, onUnmounted } from "vue";
+
   import AdminPanel from "./components/AdminPanel.vue";
   import TvDisplay from "./components/TvDisplay.vue";
+  import LeadershipDisplay from "./components/LeadershipDisplay.vue";
+
   import { supabase } from "./lib/supabase";
 
   const isTvView = window.location.hash === "#/tv";
+  const isLeadershipView = window.location.hash === "#/ledning";
 
   const amounts = ref([]);
   const loading = ref(true);
   const errorMessage = ref("");
   const isUpdating = ref(false);
+
+  // Ledningsgruppens kommandon
+  const leadershipCommand = ref({
+    action: null,
+    id: 0,
+  });
 
   let realtimeChannel = null;
 
@@ -22,7 +32,7 @@
   async function loadGame() {
     const { data, error } = await supabase
       .from("game_state")
-      .select("amounts")
+      .select("amounts, leadership_action, leadership_action_id")
       .eq("id", "main")
       .single();
 
@@ -33,6 +43,11 @@
     }
 
     applyAmounts(data.amounts);
+
+    leadershipCommand.value = {
+      action: data.leadership_action,
+      id: data.leadership_action_id ?? 0,
+    };
   }
 
   async function saveGame(newAmounts) {
@@ -59,6 +74,32 @@
     }
 
     isUpdating.value = false;
+  }
+
+  // Skicka kommando till ledningsgruppens TV-vy
+  async function sendLeadershipCommand(action) {
+    const nextId = leadershipCommand.value.id + 1;
+
+    const { data, error } = await supabase
+      .from("game_state")
+      .update({
+        leadership_action: action,
+        leadership_action_id: nextId,
+      })
+      .eq("id", "main")
+      .select("leadership_action, leadership_action_id")
+      .single();
+
+    if (error) {
+      console.error(error);
+      errorMessage.value = "Kunde inte skicka kommandot till TV-vyn.";
+      return;
+    }
+
+    leadershipCommand.value = {
+      action: data.leadership_action,
+      id: data.leadership_action_id,
+    };
   }
 
   function updateAmount(id) {
@@ -147,6 +188,16 @@
         },
         (payload) => {
           applyAmounts(payload.new.amounts);
+
+          // Uppdatera ledningsgruppens kommando om ett nytt skickats
+          const newActionId = payload.new.leadership_action_id ?? 0;
+
+          if (newActionId !== leadershipCommand.value.id) {
+            leadershipCommand.value = {
+              action: payload.new.leadership_action,
+              id: newActionId,
+            };
+          }
         },
       )
       .subscribe((status) => {
@@ -179,7 +230,7 @@
 
     <template v-else>
       <AdminPanel
-        v-if="!isTvView"
+        v-if="!isTvView && !isLeadershipView"
         :amounts="amounts"
         @toggle="updateAmount"
         @reset="resetGame"
@@ -188,9 +239,17 @@
         @edit="editAmount"
         @delete="deleteAmount"
         @move="moveAmount"
+        @start-leadership="sendLeadershipCommand('start')"
+        @reset-leadership="sendLeadershipCommand('reset')"
       />
 
-      <TvDisplay v-else :amounts="amounts" />
+      <TvDisplay v-else-if="isTvView" :amounts="amounts" />
+
+      <LeadershipDisplay
+        v-else-if="isLeadershipView"
+        :amounts="amounts"
+        :command="leadershipCommand"
+      />
     </template>
   </div>
 </template>
